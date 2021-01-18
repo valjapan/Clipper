@@ -11,4 +11,13 @@
     <color name="colorText">#455a64</color>
     <color name="colorTextSecondary">#607d8b</color>
     <color name="colorBackground">#fafafa</color>
+    <color name="colorDarkPrimary">#01579b</color>
+    <color name="colorDarkPrimaryDark">#002f6c</color>
+    <color name="colorDarkPrimaryLight">#4f83cc</color>
+    <color name="colorDarkOnPrimaryText">#ffffff</color>
+    <color name="colorDarkAccent">#c2185b</color>
+    <color name="colorDarkAccentDark">#8c0032</color>
+    <color name="colorDarkAccentLight">#fa5788</color>
+    <color name="colorDarkOnAccentText">#ffffff</color>
+    <color name="colorDarkText">#ffffff</color>
 </resources>
