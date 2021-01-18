@@ -52,6 +52,7 @@ hilt {
 dependencies {
     // Dagger Hilt
     implementation "com.google.dagger:hilt-android:$hilt_version"
+    implementation 'androidx.legacy:legacy-support-v4:1.0.0'
     kapt "com.google.dagger:hilt-android-compiler:$hilt_version"
 
     // Assisted Injection
@@ -101,6 +102,9 @@ dependencies {
     testImplementation 'junit:junit:4.13.1'
     androidTestImplementation 'androidx.test.ext:junit:1.1.2'
     androidTestImplementation 'androidx.test.espresso:espresso-contrib:3.3.0'
+
+    //material design
+    implementation 'com.google.android.material:material:1.2.1'
 
     def room_version = "2.2.6"
 
