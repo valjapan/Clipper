@@ -21,7 +21,6 @@ object DataModule {
                 HistoryDatabase::class.java,
                 "database"
             )
-//            .createFromAsset("history.db")
             .build()
     }
 }

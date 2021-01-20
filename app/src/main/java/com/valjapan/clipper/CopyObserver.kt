@@ -1,6 +1,5 @@
 package com.valjapan.clipper
 
-import android.widget.Toast
 import javax.inject.Inject
 
 class CopyObserver @Inject constructor(
@@ -10,6 +9,5 @@ class CopyObserver @Inject constructor(
 
     fun copy() {
         isCopied = true
-
     }
 }
