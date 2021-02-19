@@ -1,5 +1,6 @@
 package com.valjapan.clipper
 
+import android.content.Context
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -25,21 +26,27 @@ class HistoryFragment : Fragment() {
         historyRecyclerView = view.findViewById(R.id.history_recycler_view)
         historyRecyclerView.layoutManager = LinearLayoutManager(view.context)
 
-        getAllHistoryData(view)
-
+        getAllHistoryData(view, view.context)
         return view
     }
 
-    private fun getAllHistoryData(view: View) {
-        val database = getDatabase(view.context)
+    private fun getAllHistoryData(view: View, context: Context) {
+        val database = getDatabase(context)
         val repository = HistoryRepository(database.historyDao())
-        historyRecyclerViewAdapter = HistoryRecyclerViewAdapter(view)
+        historyRecyclerViewAdapter = HistoryRecyclerViewAdapter(view, context)
         historyRecyclerView.layoutAnimation =
             AnimationUtils.loadLayoutAnimation(context, R.anim.layout_animation_fall_down)
+        historyRecyclerView.adapter = historyRecyclerViewAdapter
         Completable.fromAction {
-            historyRecyclerView.adapter = historyRecyclerViewAdapter
             historyRecyclerViewAdapter.setHistoryList(repository.getHistoryList())
         }.subscribeOn(Schedulers.io()).subscribe()
+        historyRecyclerView.setHasFixedSize(true)
+
     }
 
+
+    override fun onResume() {
+        super.onResume()
+        historyRecyclerView.adapter?.notifyDataSetChanged()
+    }
 }

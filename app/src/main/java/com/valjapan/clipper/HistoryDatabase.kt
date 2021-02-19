@@ -11,8 +11,6 @@ abstract class HistoryDatabase : RoomDatabase() {
     companion object {
 
         fun getDatabase(context: Context): HistoryDatabase {
-            // if the INSTANCE is not null, then return it,
-            // if it is, then create the database
             return DataModule.provideHistoryDB(context)
         }
     }

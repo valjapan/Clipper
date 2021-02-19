@@ -15,7 +15,7 @@ class HistoryRepository(private val historyDao: HistoryDao) {
         }
     }
 
-    suspend fun addHistoryTask(context: Context, history: History) {
+    fun addHistoryTask(context: Context, history: History) {
         try {
             historyDao.insertHistoryData(history)
         } catch (cause: Throwable) {
@@ -25,7 +25,7 @@ class HistoryRepository(private val historyDao: HistoryDao) {
         }
     }
 
-    suspend fun deleteHistoryTask(context: Context, history: History) {
+    fun deleteHistoryTask(context: Context, history: History) {
         try {
             historyDao.deleteHistoryData(history)
         } catch (cause: Throwable) {

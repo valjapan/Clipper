@@ -3,6 +3,7 @@ package com.valjapan.clipper
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
+import android.view.animation.AnimationUtils
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import dagger.hilt.android.AndroidEntryPoint
@@ -12,6 +13,7 @@ import java.util.*
 
 @AndroidEntryPoint
 class IntentShareActivity : AppCompatActivity() {
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -30,10 +32,9 @@ class IntentShareActivity : AppCompatActivity() {
     }
 
     private fun saveDatabase(text: String?) {
-        val database = DataModule.provideHistoryDB(applicationContext)
-        val historyDao = database.historyDao()
-        val history = History(0, Date().time.toString(), text)
-        historyDao.insertHistoryData(history)
-        Log.v("Cripper", "after insert ${historyDao.getAll().toString()}")
+        val database = HistoryDatabase.getDatabase(this)
+        val repository = HistoryRepository(database.historyDao())
+        repository.addHistoryTask(this, History(0,Date().time.toString(),text))
+        Log.v("Cripper", "after insert ${repository.getHistoryList()}")
     }
 }
