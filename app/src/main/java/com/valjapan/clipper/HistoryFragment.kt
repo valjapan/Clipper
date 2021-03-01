@@ -1,6 +1,5 @@
 package com.valjapan.clipper
 
-import android.content.Context
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -16,37 +15,35 @@ import io.reactivex.schedulers.Schedulers
 class HistoryFragment : Fragment() {
     private lateinit var historyRecyclerView: RecyclerView
     private lateinit var historyRecyclerViewAdapter: HistoryRecyclerViewAdapter
+    private lateinit var historyFragmentView: View
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        val view = inflater.inflate(R.layout.fragment_history, container, false)
+        historyFragmentView = inflater.inflate(R.layout.fragment_history, container, false)
 
-        historyRecyclerView = view.findViewById(R.id.history_recycler_view)
-        historyRecyclerView.layoutManager = LinearLayoutManager(view.context)
+        historyRecyclerView = historyFragmentView.findViewById(R.id.history_recycler_view)
+        historyRecyclerView.layoutManager = LinearLayoutManager(historyFragmentView.context)
 
-        getAllHistoryData(view, view.context)
-        return view
+        return historyFragmentView
     }
 
-    private fun getAllHistoryData(view: View, context: Context) {
-        val database = getDatabase(context)
+    private fun getAllHistoryData(view: View) {
+        val database = getDatabase(view.context)
         val repository = HistoryRepository(database.historyDao())
-        historyRecyclerViewAdapter = HistoryRecyclerViewAdapter(view, context)
+        historyRecyclerViewAdapter = HistoryRecyclerViewAdapter(view)
         historyRecyclerView.layoutAnimation =
-            AnimationUtils.loadLayoutAnimation(context, R.anim.layout_animation_fall_down)
+            AnimationUtils.loadLayoutAnimation(view.context, R.anim.layout_animation_fall_down)
         historyRecyclerView.adapter = historyRecyclerViewAdapter
         Completable.fromAction {
             historyRecyclerViewAdapter.setHistoryList(repository.getHistoryList())
         }.subscribeOn(Schedulers.io()).subscribe()
         historyRecyclerView.setHasFixedSize(true)
-
     }
-
 
     override fun onResume() {
         super.onResume()
-        historyRecyclerView.adapter?.notifyDataSetChanged()
+        getAllHistoryData(historyFragmentView)
     }
 }

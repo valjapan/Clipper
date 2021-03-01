@@ -16,13 +16,14 @@ import com.google.android.material.snackbar.BaseTransientBottomBar
 import com.google.android.material.snackbar.Snackbar
 import io.reactivex.Completable
 import io.reactivex.schedulers.Schedulers
+import java.text.SimpleDateFormat
+import java.util.*
 
 class HistoryRecyclerViewAdapter(
-    private val view: View,
-    private val context: Context
+    private val view: View
 ) : RecyclerView.Adapter<HistoryRecyclerViewAdapter.ViewHolder>() {
 
-    private lateinit var historyList: List<History>
+    private var historyList: MutableList<History> = mutableListOf()
     private var check: Boolean = false
 
     override fun onCreateViewHolder(
@@ -37,7 +38,7 @@ class HistoryRecyclerViewAdapter(
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val history = historyList[position]
 
-        holder.historyDate.text = history.historyDate
+        holder.historyDate.text = stringToDate(history.historyDate)
         holder.historyText.text = history.historyText
 
         val swipeDismissBehavior = SwipeDismissBehavior<View>()
@@ -58,13 +59,13 @@ class HistoryRecyclerViewAdapter(
                             if (check) {
                                 resetCard(holder.cellView)
                             } else {
-                                val database = HistoryDatabase.getDatabase(context)
+                                val database = HistoryDatabase.getDatabase(view.context)
                                 val repository = HistoryRepository(database.historyDao())
                                 (historyList as MutableList).remove(history)
                                 notifyItemRemoved(position)
                                 Completable.fromAction {
                                     repository.deleteHistoryTask(
-                                        context,
+                                        view.context,
                                         history
                                     )
                                 }.subscribeOn(Schedulers.io()).subscribe()
@@ -73,7 +74,6 @@ class HistoryRecyclerViewAdapter(
                         }
                     }).show()
             }
-
 
             override fun onDragStateChanged(state: Int) {
                 onDragStateChanged(
@@ -92,7 +92,9 @@ class HistoryRecyclerViewAdapter(
     }
 
     fun setHistoryList(historyList: List<History>) {
-        this.historyList = historyList
+        for (i in historyList) {
+            this.historyList.add(i)
+        }
         notifyDataSetChanged()
     }
 
@@ -116,6 +118,15 @@ class HistoryRecyclerViewAdapter(
         params.setMargins(0, 0, 0, 0)
         cardContentLayout.alpha = 1.0f
         cardContentLayout.requestLayout()
+    }
+
+    private fun stringToDate(historyDate: String?): String {
+        val dateFormat = SimpleDateFormat("yyyy/MM/dd HH:mm", Locale.getDefault())
+        val date = Date()
+        if (historyDate != null) {
+            date.time = historyDate.toLong()
+        }
+        return dateFormat.format(date)
     }
 
     class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
