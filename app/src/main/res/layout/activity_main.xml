@@ -39,8 +39,8 @@
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|end"
         android:layout_margin="8dp"
-        app:backgroundTint="@color/colorPrimaryDark"
         android:src="@drawable/ic_baseline_add_24"
-        android:theme="@style/CardView.Dark" />
+        android:theme="@style/CardView.Dark"
+        app:backgroundTint="@color/colorPrimary" />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
