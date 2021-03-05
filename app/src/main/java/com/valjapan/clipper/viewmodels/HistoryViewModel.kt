@@ -1,4 +1,4 @@
-package com.valjapan.clipper
+package com.valjapan.clipper.viewmodels
 
 import androidx.databinding.ObservableArrayList
 import androidx.databinding.ObservableList
@@ -7,6 +7,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import com.squareup.inject.assisted.Assisted
 import com.squareup.inject.assisted.AssistedInject
+import com.valjapan.clipper.datas.CopyObserver
+import com.valjapan.clipper.datas.History
 
 class HistoryViewModel @AssistedInject constructor(
     private val copyObserver: CopyObserver,

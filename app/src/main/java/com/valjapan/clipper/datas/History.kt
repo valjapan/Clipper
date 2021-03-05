@@ -1,4 +1,4 @@
-package com.valjapan.clipper
+package com.valjapan.clipper.datas
 
 import androidx.room.ColumnInfo
 import androidx.room.Entity

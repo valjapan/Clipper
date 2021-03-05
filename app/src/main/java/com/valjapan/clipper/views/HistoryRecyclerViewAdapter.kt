@@ -1,4 +1,4 @@
-package com.valjapan.clipper
+package com.valjapan.clipper.views
 
 import android.content.ClipData
 import android.content.ClipboardManager
@@ -14,6 +14,10 @@ import com.google.android.material.behavior.SwipeDismissBehavior
 import com.google.android.material.card.MaterialCardView
 import com.google.android.material.snackbar.BaseTransientBottomBar
 import com.google.android.material.snackbar.Snackbar
+import com.valjapan.clipper.R
+import com.valjapan.clipper.datas.History
+import com.valjapan.clipper.datas.HistoryDatabase
+import com.valjapan.clipper.datas.HistoryRepository
 import io.reactivex.Completable
 import io.reactivex.schedulers.Schedulers
 import java.text.SimpleDateFormat

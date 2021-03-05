@@ -1,4 +1,4 @@
-package com.valjapan.clipper
+package com.valjapan.clipper.datas
 
 import javax.inject.Inject
 

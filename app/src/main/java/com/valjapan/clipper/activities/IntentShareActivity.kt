@@ -1,11 +1,13 @@
-package com.valjapan.clipper
+package com.valjapan.clipper.activities
 
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
-import android.view.animation.AnimationUtils
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import com.valjapan.clipper.datas.History
+import com.valjapan.clipper.datas.HistoryDatabase
+import com.valjapan.clipper.datas.HistoryRepository
 import dagger.hilt.android.AndroidEntryPoint
 import io.reactivex.Completable
 import io.reactivex.schedulers.Schedulers

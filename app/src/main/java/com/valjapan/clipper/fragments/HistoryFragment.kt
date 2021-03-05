@@ -1,4 +1,4 @@
-package com.valjapan.clipper
+package com.valjapan.clipper.fragments
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -8,7 +8,10 @@ import android.view.animation.AnimationUtils
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.valjapan.clipper.HistoryDatabase.Companion.getDatabase
+import com.valjapan.clipper.views.HistoryRecyclerViewAdapter
+import com.valjapan.clipper.R
+import com.valjapan.clipper.datas.HistoryDatabase.Companion.getDatabase
+import com.valjapan.clipper.datas.HistoryRepository
 import io.reactivex.Completable
 import io.reactivex.schedulers.Schedulers
 

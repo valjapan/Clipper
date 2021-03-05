@@ -1,4 +1,4 @@
-package com.valjapan.clipper
+package com.valjapan.clipper.datas
 
 import com.squareup.inject.assisted.dagger2.AssistedModule
 import dagger.Module
