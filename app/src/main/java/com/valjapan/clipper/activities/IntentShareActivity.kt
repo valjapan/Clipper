@@ -2,12 +2,10 @@ package com.valjapan.clipper.activities
 
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.valjapan.clipper.datas.History
 import com.valjapan.clipper.datas.HistoryDatabase
-import com.valjapan.clipper.datas.HistoryRepository
 import dagger.hilt.android.AndroidEntryPoint
 import io.reactivex.Completable
 import io.reactivex.schedulers.Schedulers
@@ -15,7 +13,6 @@ import java.util.*
 
 @AndroidEntryPoint
 class IntentShareActivity : AppCompatActivity() {
-
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -35,8 +32,8 @@ class IntentShareActivity : AppCompatActivity() {
 
     private fun saveDatabase(text: String?) {
         val database = HistoryDatabase.getDatabase(this)
-        val repository = HistoryRepository(database.historyDao())
-        repository.addHistoryTask(this, History(0,Date().time.toString(),text))
-        Log.v("Cripper", "after insert ${repository.getHistoryList()}")
+        val repository = (database.historyDao())
+        val history = History(0, Date(), text)
+        repository.insertHistoryData(history)
     }
 }

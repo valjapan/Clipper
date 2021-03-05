@@ -1,30 +1,38 @@
 package com.valjapan.clipper.views
 
+import android.app.AlertDialog
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
+import android.content.DialogInterface
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import android.widget.Toast
 import androidx.coordinatorlayout.widget.CoordinatorLayout
+import androidx.lifecycle.LifecycleOwner
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.behavior.SwipeDismissBehavior
 import com.google.android.material.card.MaterialCardView
-import com.google.android.material.snackbar.BaseTransientBottomBar
 import com.google.android.material.snackbar.Snackbar
 import com.valjapan.clipper.R
 import com.valjapan.clipper.datas.History
 import com.valjapan.clipper.datas.HistoryDatabase
-import com.valjapan.clipper.datas.HistoryRepository
+import com.valjapan.clipper.viewmodels.HistoryViewModel
 import io.reactivex.Completable
 import io.reactivex.schedulers.Schedulers
 import java.text.SimpleDateFormat
+import java.time.LocalDateTime
+import java.time.ZoneId
+import java.time.temporal.ChronoUnit
 import java.util.*
 
+
 class HistoryRecyclerViewAdapter(
-    private val view: View
+    private val view: View,
+    private val viewModel: HistoryViewModel,
+    private val viewLifecycleOwner: LifecycleOwner
 ) : RecyclerView.Adapter<HistoryRecyclerViewAdapter.ViewHolder>() {
 
     private var historyList: MutableList<History> = mutableListOf()
@@ -42,8 +50,32 @@ class HistoryRecyclerViewAdapter(
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val history = historyList[position]
 
-        holder.historyDate.text = stringToDate(history.historyDate)
+        viewModel.fetchHistory(history.id).observe(viewLifecycleOwner, { history ->
+            if (history != null) {
+                viewModel.id = history.id
+            }
+        })
+
         holder.historyText.text = history.historyText
+
+        val now = LocalDateTime.now()
+        val bookLocalDateTime =
+            LocalDateTime.ofInstant(history.historyDate.toInstant(), ZoneId.systemDefault())
+        val minute: Long = ChronoUnit.MINUTES.between(bookLocalDateTime, now)
+        val hour: Long = ChronoUnit.HOURS.between(bookLocalDateTime, now)
+        val timeText: String = when {
+            hour in 1..23 -> {
+                "${hour}時間前"
+            }
+            minute < 60 -> {
+                "${minute}分前"
+            }
+            else -> {
+                dateToString(history.historyDate)
+            }
+        }
+        holder.historyDate.text = timeText
+
 
         val swipeDismissBehavior = SwipeDismissBehavior<View>()
         swipeDismissBehavior.setSwipeDirection(SwipeDismissBehavior.SWIPE_DIRECTION_START_TO_END)
@@ -52,40 +84,53 @@ class HistoryRecyclerViewAdapter(
 
         coordinatorParams.behavior = swipeDismissBehavior
 
-        swipeDismissBehavior.listener = object : SwipeDismissBehavior.OnDismissListener {
-            override fun onDismiss(v: View) {
-                Snackbar.make(view, "この項目を削除しました", Snackbar.LENGTH_SHORT)
-                    .setAction("元に戻す") { _ ->
-                        check = true
-                    }.addCallback(object : BaseTransientBottomBar.BaseCallback<Snackbar>() {
-                        override fun onDismissed(transientBottomBar: Snackbar?, event: Int) {
-                            super.onDismissed(transientBottomBar, event)
-                            if (check) {
-                                resetCard(holder.cellView)
-                            } else {
-                                val database = HistoryDatabase.getDatabase(view.context)
-                                val repository = HistoryRepository(database.historyDao())
-                                (historyList as MutableList).remove(history)
-                                notifyItemRemoved(position)
-                                Completable.fromAction {
-                                    repository.deleteHistoryTask(
-                                        view.context,
-                                        history
-                                    )
-                                }.subscribeOn(Schedulers.io()).subscribe()
-                            }
-                            check = false
-                        }
-                    }).show()
-            }
+        holder.cellView.setOnLongClickListener {
 
-            override fun onDragStateChanged(state: Int) {
-                onDragStateChanged(
-                    state,
-                    holder.cellView
-                )
-            }
+            AlertDialog.Builder(view.context)
+                .setTitle("削除")
+                .setMessage("このクリップボードを削除しますか？")
+                .setPositiveButton("OK", DialogInterface.OnClickListener { dialog, which ->
+                    Completable.fromAction {
+                        val database = HistoryDatabase.getDatabase(view.context)
+                        val repository = (database.historyDao())
+                        repository.deleteHistoryData(history)
+                    }
+                        .subscribeOn(Schedulers.io())
+                        .doFinally {
+                            Snackbar.make(view, "この項目を削除しました", Snackbar.LENGTH_SHORT).show()
+                        }
+                        .subscribe()
+                })
+                .setNegativeButton("Cancel", null)
+                .show()
+            true
         }
+
+//        swipeDismissBehavior.listener = object : SwipeDismissBehavior.OnDismissListener {
+//            override fun onDismiss(v: View) {
+//
+//                    .setAction("元に戻す") { _ ->
+//                        check = true
+//                    }.addCallback(object : BaseTransientBottomBar.BaseCallback<Snackbar>() {
+//                        override fun onDismissed(transientBottomBar: Snackbar?, event: Int) {
+//                            super.onDismissed(transientBottomBar, event)
+//                            if (check) {
+//                                resetCard(holder.cellView)
+//                            } else {
+//                                viewModel.delete()
+//                                check = false
+//                            }
+//                        }
+//                    }).show()
+//            }
+//
+//            override fun onDragStateChanged(state: Int) {
+//                onDragStateChanged(
+//                    state,
+//                    holder.cellView
+//                )
+//            }
+//        }
 
         holder.cellView.setOnClickListener() {
             val clipboardManager: ClipboardManager =
@@ -96,18 +141,12 @@ class HistoryRecyclerViewAdapter(
     }
 
     fun setHistoryList(historyList: List<History>) {
-        for (i in historyList) {
-            this.historyList.add(i)
-        }
+        this.historyList.clear()
+        this.historyList.addAll(historyList)
         notifyDataSetChanged()
     }
 
-    override fun getItemCount(): Int {
-        if (historyList.isEmpty()) {
-            return 0
-        }
-        return historyList.size
-    }
+    override fun getItemCount(): Int = historyList.size
 
     private fun onDragStateChanged(state: Int, cardContentLayout: MaterialCardView) {
         when (state) {
@@ -124,13 +163,9 @@ class HistoryRecyclerViewAdapter(
         cardContentLayout.requestLayout()
     }
 
-    private fun stringToDate(historyDate: String?): String {
+    private fun dateToString(historyDate: Date?): String {
         val dateFormat = SimpleDateFormat("yyyy/MM/dd HH:mm", Locale.getDefault())
-        val date = Date()
-        if (historyDate != null) {
-            date.time = historyDate.toLong()
-        }
-        return dateFormat.format(date)
+        return dateFormat.format(historyDate)
     }
 
     class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {

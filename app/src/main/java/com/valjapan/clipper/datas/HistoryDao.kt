@@ -1,18 +1,25 @@
 package com.valjapan.clipper.datas
 
+import androidx.lifecycle.LiveData
 import androidx.room.*
 
 @Dao
 interface HistoryDao {
+    @Query("SELECT * FROM history")
+    fun observeAll(): LiveData<List<History>>
+
+    @Query("SELECT * FROM history WHERE id == :id")
+    fun getItem(id: Int): History?
+
+    @Query("SELECT * FROM history WHERE id == :id")
+    fun observe(id: Int): LiveData<History?>
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun insertHistoryData(vararg history: History)
+    fun insertHistoryData(history: History)
 
     @Update
-    fun updateHistoryData(vararg history: History)
+    fun updateHistoryData(history: History)
 
     @Delete
-    fun deleteHistoryData(vararg history: History)
-
-    @Query("SELECT * FROM history")
-    fun getAll(): List<History>
+    fun deleteHistoryData(history: History)
 }

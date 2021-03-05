@@ -1,46 +1,53 @@
 package com.valjapan.clipper.viewmodels
 
-import androidx.databinding.ObservableArrayList
-import androidx.databinding.ObservableList
-import androidx.lifecycle.LifecycleObserver
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
-import com.squareup.inject.assisted.Assisted
-import com.squareup.inject.assisted.AssistedInject
-import com.valjapan.clipper.datas.CopyObserver
+import android.app.Application
+import android.os.Parcelable
+import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.viewModelScope
 import com.valjapan.clipper.datas.History
+import com.valjapan.clipper.datas.HistoryDatabase
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
+import kotlin.properties.Delegates
 
-class HistoryViewModel @AssistedInject constructor(
-    private val copyObserver: CopyObserver,
-    @Assisted private val copyId: String
-) : ViewModel(), LifecycleObserver {
-    fun copy() {
-        copyObserver.copy()
+class HistoryViewModel(application: Application) : AndroidViewModel(application) {
+
+    enum class Destination {
+        COLLECTION,
+        EDIT
     }
 
-    fun isCopied(): Boolean {
-        return copyObserver.isCopied
+    val historyList: LiveData<List<History>>
+
+    private val _move: MutableLiveData<Pair<Destination, Parcelable?>> = MutableLiveData()
+
+
+    var id by Delegates.notNull<Int>()
+
+    private val database = HistoryDatabase.getDatabase(application.applicationContext)
+
+    init {
+        historyList = runBlocking {
+            database.historyDao().observeAll()
+        }
     }
 
-    private val historyList: ObservableList<History> = ObservableArrayList()
-
-    fun addHistoryItemChangeListener(listener: ObservableList.OnListChangedCallback<ObservableList<History>>) {
-        historyList.addOnListChangedCallback(listener)
-    }
-
-    @AssistedInject.Factory
-    interface AssistedFactory {
-        fun create(copyId: String): HistoryViewModel
-    }
-
-    companion object {
-        fun provideFactory(
-            assistedFactory: AssistedFactory,
-            copyId: String
-        ): ViewModelProvider.Factory = object : ViewModelProvider.Factory {
-            override fun <T : ViewModel?> create(modelClass: Class<T>): T {
-                return assistedFactory.create(copyId) as T
+    fun delete() {
+        id.let { id ->
+            viewModelScope.launch(Dispatchers.IO) {
+                val history = database.historyDao().getItem(id) ?: return@launch
+                database.historyDao().deleteHistoryData(history)
+                this.launch(Dispatchers.Main) {
+                    _move.postValue(Pair(Destination.COLLECTION, null))
+                }
             }
         }
     }
+
+    fun fetchHistory(id: Int): LiveData<History?> =
+        runBlocking(Dispatchers.IO) { database.historyDao().observe(id) }
+
 }
