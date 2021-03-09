@@ -10,6 +10,9 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.gms.ads.AdRequest
+import com.google.android.gms.ads.AdView
+import com.google.android.gms.ads.MobileAds
 import com.valjapan.clipper.R
 import com.valjapan.clipper.viewmodels.HistoryViewModel
 import com.valjapan.clipper.views.HistoryRecyclerViewAdapter
