@@ -10,10 +10,8 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import android.widget.Toast
-import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.lifecycle.LifecycleOwner
 import androidx.recyclerview.widget.RecyclerView
-import com.google.android.material.behavior.SwipeDismissBehavior
 import com.google.android.material.card.MaterialCardView
 import com.google.android.material.snackbar.Snackbar
 import com.valjapan.clipper.R
@@ -50,11 +48,13 @@ class HistoryRecyclerViewAdapter(
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val history = historyList[position]
 
-        viewModel.fetchHistory(history.id).observe(viewLifecycleOwner, { history ->
-            if (history != null) {
-                viewModel.id = history.id
-            }
-        })
+        viewModel.run {
+            fetchHistory(history.id).observe(viewLifecycleOwner, { history ->
+                if (history != null) {
+                    id = history.id
+                }
+            })
+        }
 
         holder.historyText.text = history.historyText
 
@@ -77,19 +77,19 @@ class HistoryRecyclerViewAdapter(
         holder.historyDate.text = timeText
 
 
-        val swipeDismissBehavior = SwipeDismissBehavior<View>()
-        swipeDismissBehavior.setSwipeDirection(SwipeDismissBehavior.SWIPE_DIRECTION_START_TO_END)
-
-        val coordinatorParams = holder.cellView.layoutParams as CoordinatorLayout.LayoutParams
-
-        coordinatorParams.behavior = swipeDismissBehavior
+//        val swipeDismissBehavior = SwipeDismissBehavior<View>()
+//        swipeDismissBehavior.setSwipeDirection(SwipeDismissBehavior.SWIPE_DIRECTION_START_TO_END)
+//
+//        val coordinatorParams = holder.cellView.layoutParams as CoordinatorLayout.LayoutParams
+//
+//        coordinatorParams.behavior = swipeDismissBehavior
 
         holder.cellView.setOnLongClickListener {
 
             AlertDialog.Builder(view.context)
                 .setTitle("削除")
                 .setMessage("このクリップボードを削除しますか？")
-                .setPositiveButton("OK", DialogInterface.OnClickListener { dialog, which ->
+                .setPositiveButton("OK", DialogInterface.OnClickListener { _, _ ->
                     Completable.fromAction {
                         val database = HistoryDatabase.getDatabase(view.context)
                         val repository = (database.historyDao())
@@ -135,7 +135,7 @@ class HistoryRecyclerViewAdapter(
         holder.cellView.setOnClickListener() {
             val clipboardManager: ClipboardManager =
                 view.context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
-            clipboardManager.setPrimaryClip(ClipData.newPlainText("Cripper", history?.historyText))
+            clipboardManager.setPrimaryClip(ClipData.newPlainText("Cripper", history.historyText))
             Toast.makeText(view.context, "クリップボードに貼り付けました", Toast.LENGTH_LONG).show()
         }
     }
@@ -148,22 +148,22 @@ class HistoryRecyclerViewAdapter(
 
     override fun getItemCount(): Int = historyList.size
 
-    private fun onDragStateChanged(state: Int, cardContentLayout: MaterialCardView) {
-        when (state) {
-            SwipeDismissBehavior.STATE_DRAGGING, SwipeDismissBehavior.STATE_SETTLING -> cardContentLayout.isDragged =
-                true
-            SwipeDismissBehavior.STATE_IDLE -> cardContentLayout.isDragged = false
-        }
-    }
+//    private fun onDragStateChanged(state: Int, cardContentLayout: MaterialCardView) {
+//        when (state) {
+//            SwipeDismissBehavior.STATE_DRAGGING, SwipeDismissBehavior.STATE_SETTLING -> cardContentLayout.isDragged =
+//                true
+//            SwipeDismissBehavior.STATE_IDLE -> cardContentLayout.isDragged = false
+//        }
+//    }
+//
+//    private fun resetCard(cardContentLayout: MaterialCardView) {
+//        val params = cardContentLayout.layoutParams as CoordinatorLayout.LayoutParams
+//        params.setMargins(0, 0, 0, 0)
+//        cardContentLayout.alpha = 1.0f
+//        cardContentLayout.requestLayout()
+//    }
 
-    private fun resetCard(cardContentLayout: MaterialCardView) {
-        val params = cardContentLayout.layoutParams as CoordinatorLayout.LayoutParams
-        params.setMargins(0, 0, 0, 0)
-        cardContentLayout.alpha = 1.0f
-        cardContentLayout.requestLayout()
-    }
-
-    private fun dateToString(historyDate: Date?): String {
+    private fun dateToString(historyDate: Date): String {
         val dateFormat = SimpleDateFormat("yyyy/MM/dd HH:mm", Locale.getDefault())
         return dateFormat.format(historyDate)
     }

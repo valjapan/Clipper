@@ -10,5 +10,6 @@
     <color name="colorOnAccentText">#ffffff</color>
     <color name="colorText">#ffffff</color>
     <color name="colorTextSecondary">#607d8b</color>
-    <color name="colorBackground">#fafafa</color>
+    <color name="colorBackground">#000000</color>
+    <color name="colorCellBackground">#fafafa</color>
 </resources>

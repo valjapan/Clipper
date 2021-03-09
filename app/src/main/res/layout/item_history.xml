@@ -18,6 +18,8 @@
         android:layout_height="match_parent"
         android:focusable="true"
         android:minHeight="40dp"
+        android:outlineAmbientShadowColor="@color/colorCellBackground"
+        android:outlineSpotShadowColor="@color/colorCellBackground"
         app:cardCornerRadius="8dp"
         app:cardElevation="4dp"
         app:cardMaxElevation="8dp"

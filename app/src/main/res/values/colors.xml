@@ -11,4 +11,5 @@
     <color name="colorText">#455a64</color>
     <color name="colorTextSecondary">#607d8b</color>
     <color name="colorBackground">#fafafa</color>
+    <color name="colorCellBackground">#000000</color>
 </resources>

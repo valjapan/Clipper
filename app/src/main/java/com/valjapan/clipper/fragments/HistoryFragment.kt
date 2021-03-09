@@ -22,7 +22,7 @@ class HistoryFragment : Fragment() {
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         historyFragmentView = inflater.inflate(R.layout.fragment_history, container, false)
 
         historyRecyclerView = historyFragmentView.findViewById(R.id.history_recycler_view)
